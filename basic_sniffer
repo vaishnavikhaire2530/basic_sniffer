@@ -1,0 +1,41 @@
+from scapy.all import sniff, IP, TCP, UDP, Raw
+
+def packet_callback(packet):
+    print("="*60)
+    # Check if the packet has an IP layer
+    if IP in packet:
+        ip_layer = packet[IP]
+        print(f"Source IP      : {ip_layer.src}")
+        print(f"Destination IP : {ip_layer.dst}")
+        print(f"Protocol       : {ip_layer.proto}")
+
+        # TCP or UDP info
+        if TCP in packet:
+            tcp_layer = packet[TCP]
+            print(f"Source Port    : {tcp_layer.sport}")
+            print(f"Destination Port: {tcp_layer.dport}")
+            print("Protocol Type  : TCP")
+        elif UDP in packet:
+            udp_layer = packet[UDP]
+            print(f"Source Port    : {udp_layer.sport}")
+            print(f"Destination Port: {udp_layer.dport}")
+            print("Protocol Type  : UDP")
+        else:
+            print("Protocol Type  : Other")
+
+        # Payload (if any)
+        if Raw in packet:
+            payload = packet[Raw].load
+            print(f"Payload        : {payload[:50]!r} ...")  # Show first 50 bytes
+        else:
+            print("Payload        : None")
+    else:
+        print("Non-IP Packet")
+
+def main():
+    print("Starting packet capture... (Press Ctrl+C to stop)")
+    # You can specify a filter, e.g., filter="ip"
+    sniff(prn=packet_callback, store=False)
+
+if __name__ == "__main__":
+    main()
